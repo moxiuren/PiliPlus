@@ -1,0 +1,70 @@
+name: Lite-Build
+
+on:
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: "Release tag"
+                required: false
+                default: "lite-v1"
+                type: string
+
+jobs:
+    android-armeabi-v7a:
+        name: Build Android (armeabi-v7a)
+        runs-on: ubuntu-latest
+        permissions: write-all
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: zulu
+                  java-version: "17"
+                  cache: gradle
+
+            - name: Setup Flutter
+              uses: subosito/flutter-action@v2
+              with:
+                  flutter-version-file: pubspec.yaml
+                  cache: true
+
+            - name: Get version
+              id: version
+              run: |
+                  VERSION=$(grep '^version:' pubspec.yaml | head -1 | awk '{print $2}')
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+            - name: Flutter pub get
+              run: flutter pub get --no-example
+
+            - name: Flutter build APK
+              run: |
+                  flutter build apk \
+                    --release \
+                    --split-per-abi \
+                    --dart-define-from-file=pili_release.json
+
+            - name: Rename APK
+              run: |
+                  for file in build/app/outputs/flutter-apk/app-*-release.apk; do
+                    abi=$(echo "$file" | sed -E 's|.*app-(.*)-release\.apk|\1|')
+                    mv "$file" "PiliLite_${{ steps.version.outputs.version }}_\${abi}.apk"
+                  done
+              shell: bash
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: PiliLite_armeabi-v7a
+                  path: PiliLite_*_armeabi-v7a.apk
+
+            - name: Release
+              if: github.event_name == 'workflow_dispatch' && github.event.inputs.tag != ''
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: ${{ inputs.tag }}
+                  name: ${{ inputs.tag }}
+                  files: PiliLite_*.apk
