@@ -246,15 +246,7 @@ flutter_launcher_icons:
     generate: true
     image_path: assets/images/logo/logo.png
 
-flutter_native_splash:
-  android_12:
-    color: "#ffffff"
-    color_dark: "#212121"
-  color: "#ffffff"
-  color_dark: "#212121"
-  image: assets/images/logo/logo_2.png
-  image_dark: assets/images/logo/logo_2.png
-
+# flutter_native_splash removed for lite build
 flutter:
   uses-material-design: true
 
@@ -262,13 +254,6 @@ flutter:
     - path: assets/images/
     - path: assets/images/logo/
     - path: assets/images/logo/ico/
-      platforms: [windows]
-    - path: assets/images/logo/desktop/
-      platforms: [linux, macos]
-    - path: assets/images/live/
-    - path: assets/images/paycoins/
-    - path: assets/shaders/
-
   fonts:
     - family: digital_id_num
       fonts:
