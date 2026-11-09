@@ -31,6 +31,9 @@ jobs:
                   flutter-version-file: pubspec.yaml
                   cache: true
 
+            - name: Create release config
+              run: echo '{}' > pili_release.json
+
             - name: Get version
               id: version
               run: |
@@ -45,7 +48,7 @@ jobs:
                   flutter build apk \
                     --release \
                     --split-per-abi \
-                    --dart-define-from-file=pili_release.json
+                    --target-platform=android-arm
 
             - name: Rename APK
               run: |
