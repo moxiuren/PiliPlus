@@ -1,0 +1,35 @@
+name: Build-Lite
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: pubspec.yaml
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release --target-platform=android-arm
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PiliLite-armeabi-v7a
+          path: build/app/outputs/flutter-apk/app-release.apk
